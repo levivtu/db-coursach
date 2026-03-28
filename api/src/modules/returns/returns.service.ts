@@ -14,7 +14,6 @@ export class ReturnsService {
       SELECT 
         r.*,
         o.created_at as order_date,
-        rc.id as content_id,
         rc.return_id,
         rc.order_content_id,
         oc.book_id,
@@ -37,7 +36,6 @@ export class ReturnsService {
       return [];
     }
 
-    // Define type for the joined result
     interface ReturnWithContentsRow {
       id: number;
       order_id: number;
@@ -54,7 +52,6 @@ export class ReturnsService {
       title: string | null;
     }
 
-    // Group the results by return ID
     const returnsMap = new Map<number, any>();
 
     for (const row of returnsResult.rows as ReturnWithContentsRow[]) {
@@ -64,9 +61,7 @@ export class ReturnsService {
           contents: [],
         });
 
-        // Remove content-specific fields from the main return object
         const returnObj = returnsMap.get(row.id);
-        delete returnObj.content_id;
         delete returnObj.return_id;
         delete returnObj.order_content_id;
         delete returnObj.book_id;
@@ -75,19 +70,15 @@ export class ReturnsService {
         delete returnObj.title;
       }
 
-      // Add content if it exists
-      if (row.content_id) {
-        const returnObj = returnsMap.get(row.id);
-        returnObj.contents.push({
-          id: row.content_id,
-          return_id: row.return_id,
-          order_content_id: row.order_content_id,
-          book_id: row.book_id,
-          original_amount: row.original_amount,
-          price_per_book: row.price_per_book,
-          title: row.title,
-        });
-      }
+      const returnObj = returnsMap.get(row.id);
+      returnObj.contents.push({
+        return_id: row.return_id,
+        order_content_id: row.order_content_id,
+        book_id: row.book_id,
+        original_amount: row.original_amount,
+        price_per_book: row.price_per_book,
+        title: row.title,
+      });
     }
 
     return Array.from(returnsMap.values()) as (Returns & {

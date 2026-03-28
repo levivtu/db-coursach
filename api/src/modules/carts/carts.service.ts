@@ -11,7 +11,7 @@ export class CartsService {
   async findByUserId(userId: number) {
     const result = await executeQueryWithLogging(
       `
-      SELECT c.*, cc.id as content_id, cc.cart_id, cc.book_id, cc.amount, b.title, b.price
+      SELECT c.*, cc.cart_id, cc.book_id, cc.amount, b.title, b.price
       FROM buyers b_user
       JOIN carts c ON b_user.id = c.buyer_id
       LEFT JOIN carts_contents cc ON c.id = cc.cart_id
@@ -26,13 +26,6 @@ export class CartsService {
     }
 
     const cart = result.rows[0] as Carts;
-    // If there are no contents, return cart with empty contents array
-    if (!result.rows[0].content_id) {
-      return {
-        ...cart,
-        contents: [],
-      };
-    }
 
     // Define type for the joined result
     interface CartWithContentsRow {
@@ -56,8 +49,7 @@ export class CartsService {
         amount: row.amount,
         title: row.title,
         price: row.price,
-      }))
-      .filter((content) => content.id !== null); // Filter out the main cart row if it appears
+      }));
 
     return {
       ...cart,

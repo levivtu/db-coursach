@@ -83,6 +83,6 @@ export async function executeQueryWithLogging(
     throw error;
   } finally {
     connection.release();
-    pool.end();
+    // pool.end();
   }
 }

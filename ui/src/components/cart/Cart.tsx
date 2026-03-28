@@ -155,6 +155,7 @@ const Cart: React.FC = () => {
   }
 
   if (!cart || !cart.contents || cart.contents.length === 0) {
+    console.log({cart});
     return <div>Your cart is empty</div>;
   }
 
